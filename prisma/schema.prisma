@@ -1,0 +1,458 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Seed configuration
+// Run with: npm run db:seed
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+enum RequestStatus {
+  PENDING
+  SEARCHING
+  FOUND
+  QUOTED
+  COMPLETED
+  CANCELLED
+}
+
+enum FuelType {
+  PETROL
+  DIESEL
+  ELECTRIC
+  HYBRID
+  PLUGIN_HYBRID
+}
+
+enum Transmission {
+  MANUAL
+  AUTOMATIC
+  CVT
+}
+
+enum VehicleStatus {
+  AVAILABLE
+  RESERVED
+  SOLD
+}
+
+model User {
+  id              String    @id @default(cuid())
+  name            String?
+  firstName       String?
+  lastName        String?
+  email           String    @unique
+  emailVerified   DateTime?
+  password        String?
+  phone           String?
+  role            UserRole  @default(USER)
+  image           String?
+  disabled        Boolean   @default(false)
+  lastActivityAt  DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  vehicleRequests    VehicleRequest[]
+  partsRequests      PartsRequest[]
+  vehicleMessages    VehicleMessage[]
+  partsMessages      PartsMessage[]
+  searchSessions     SearchSession[]
+  vehicleInquiries   VehicleInquiry[]
+  vehicleAppointments VehicleAppointment[]
+  passwordResetTokens PasswordResetToken[]
+
+  @@map("users")
+}
+
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  userId    String
+  tokenHash String
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("password_reset_tokens")
+}
+
+model VehicleRequest {
+  id          String        @id @default(cuid())
+  userId      String
+  brand       String
+  model       String
+  yearMin     Int?
+  yearMax     Int?
+  mileageMin  Int?
+  mileageMax  Int?
+  fuelType    FuelType?
+  transmission Transmission?
+  color       String?
+  budget      Float?
+  notes       String?      @db.Text
+  status      RequestStatus @default(PENDING)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  user          User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  scrapedVehicles ScrapedVehicle[]
+  vehicleMessages VehicleMessage[]
+
+  @@index([userId])
+
+  @@map("vehicle_requests")
+}
+
+model PartsRequest {
+  id           String        @id @default(cuid())
+  userId       String
+  partName     String
+  vehicleModel String?
+  year         Int?
+  vin          String?
+  budget       Float?
+  imageUrl     String?
+  notes        String?       @db.Text
+  status       RequestStatus @default(PENDING)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  scrapedParts ScrapedPart[]
+  partsMessages PartsMessage[]
+
+  @@index([userId])
+
+  @@map("parts_requests")
+}
+
+model SearchSession {
+  id          String   @id @default(cuid())
+  userId      String
+  searchType  String   // "vehicle" or "parts"
+  brand       String?
+  model       String?
+  year        Int?
+  mileage     Int?
+  fuelType    FuelType?
+  transmission Transmission?
+  query       String?  // For parts searches
+  resultCount Int      @default(0)
+  createdAt   DateTime @default(now())
+
+  user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  scrapedVehicles ScrapedVehicle[]
+  scrapedParts   ScrapedPart[]
+
+  @@map("search_sessions")
+}
+
+model ScrapedVehicle {
+  id        String   @id @default(cuid())
+  requestId String?
+  sessionId String?
+  title     String
+  price     Float?
+  mileage   Int?
+  location  String?
+  images    String[] // Array of image URLs
+  link      String
+  scrapedAt DateTime @default(now())
+
+  request VehicleRequest? @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  session SearchSession?  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@map("scraped_vehicles")
+}
+
+model ScrapedPart {
+  id        String   @id @default(cuid())
+  requestId String?
+  sessionId String?
+  title     String
+  price     Float?
+  seller    String?
+  images    String[] // Array of image URLs
+  link      String
+  scrapedAt DateTime @default(now())
+
+  request PartsRequest? @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  session SearchSession? @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([requestId])
+  @@index([sessionId])
+  @@map("scraped_parts")
+}
+
+model VehicleMessage {
+  id        String   @id @default(cuid())
+  requestId String
+  senderId  String
+  content   String   @db.Text
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  request VehicleRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  sender User @relation(fields: [senderId], references: [id], onDelete: Cascade)
+
+  @@map("vehicle_messages")
+}
+
+model PartsMessage {
+  id        String   @id @default(cuid())
+  requestId String
+  senderId  String
+  content   String   @db.Text
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  request PartsRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  sender User @relation(fields: [senderId], references: [id], onDelete: Cascade)
+
+  @@map("parts_messages")
+}
+
+// ============================================
+// INVENTORY SYSTEM
+// ============================================
+
+enum InquiryStatus {
+  NEW
+  CONTACTED
+  CLOSED
+}
+
+enum AppointmentStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+
+model InventoryVehicle {
+  id            String        @id @default(cuid())
+  slug          String        @unique
+  title         String
+  brand         String
+  model         String
+  year          Int
+  mileage       Int
+  fuelType      FuelType
+  transmission  Transmission
+  color         String?
+  cvFiscaux     Int
+  powerHp       Int?      // Puissance en chevaux (ch)
+  pricePurchase Float
+  priceResale   Float?
+  countryOrigin String        @default("DE")
+  coverImage    String?       // Hero + listing card
+  images        String[]      // Gallery images (multiple)
+  description   String?        @db.Text
+  status        VehicleStatus  @default(AVAILABLE)
+  importCost    Float?
+  potentialMargin Float?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  priceComparisons PriceComparison[]
+  inquiries        VehicleInquiry[]
+  appointments     VehicleAppointment[]
+
+  @@index([brand])
+  @@index([model])
+  @@index([status])
+  @@index([year])
+  @@index([slug])
+  @@map("inventory_vehicles")
+}
+
+// ============================================
+// VEHICLE INQUIRY (demande d'information)
+// ============================================
+
+model VehicleInquiry {
+  id           String        @id @default(cuid())
+  vehicleId    String
+  userId       String?
+  firstName    String
+  lastName     String
+  email        String
+  phone        String
+  message      String        @db.Text
+  status       InquiryStatus @default(NEW)
+  adminResponse String?      @db.Text
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  vehicle InventoryVehicle @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  user   User?             @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([vehicleId])
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("vehicle_inquiries")
+}
+
+// ============================================
+// SCHEDULING: AVAILABILITY & BLOCKED DATES
+// ============================================
+
+model Availability {
+  id           String   @id @default(cuid())
+  dayOfWeek    Int      // 0 = Sunday, 1 = Monday, ... 6 = Saturday
+  startTime    String   // "09:00"
+  endTime      String   // "18:00"
+  slotDuration Int     // minutes, e.g. 30
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@unique([dayOfWeek])
+  @@index([dayOfWeek])
+  @@map("availabilities")
+}
+
+model BlockedDate {
+  id        String   @id @default(cuid())
+  date      DateTime @db.Date
+  reason    String?  @db.Text
+  createdAt DateTime @default(now())
+
+  @@unique([date])
+  @@index([date])
+  @@map("blocked_dates")
+}
+
+// ============================================
+// VEHICLE APPOINTMENT (prise de rendez-vous)
+// ============================================
+
+model VehicleAppointment {
+  id            String            @id @default(cuid())
+  vehicleId     String
+  userId        String?
+  firstName     String
+  lastName      String
+  email         String
+  phone         String
+  preferredDate DateTime         @db.Date
+  startTime     String?          // "09:00" - slot start (required for new slot-based bookings)
+  endTime       String?          // "09:30" - slot end
+  preferredTime String?          // deprecated, kept for migration
+  message       String?          @db.Text
+  status        AppointmentStatus @default(PENDING)
+  adminNote     String?           @db.Text
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+
+  vehicle InventoryVehicle @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  user   User?             @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([vehicleId])
+  @@index([userId])
+  @@index([status])
+  @@index([preferredDate])
+  @@index([createdAt])
+  @@map("vehicle_appointments")
+}
+
+// ============================================
+// ADMIN CONFIGURATION
+// ============================================
+
+model AdminConfig {
+  id                String   @id @default(cuid())
+  key               String   @unique
+  value             String   @db.Text
+  description       String?
+  updatedAt         DateTime @updatedAt
+  updatedBy         String?
+
+  @@map("admin_configs")
+}
+
+// Singleton: une seule ligne active (key = "default")
+model GlobalSettings {
+  id                   String   @id @default(cuid())
+  key                  String   @unique @default("default")
+  regionPricePerCV     Float    @default(46.15)
+  defaultTransportCost Float    @default(800)
+  germanTempPlateCost  Float    @default(150)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  @@map("global_settings")
+}
+
+model CocPrice {
+  id        String   @id @default(cuid())
+  brand     String   @unique
+  price     Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("coc_prices")
+}
+
+// ============================================
+// SEARCH RESULT CACHE (vehicle search backend)
+// ============================================
+
+enum SearchResultStatus {
+  SUCCESS
+  FAILED
+  BLOCKED
+}
+
+model SearchResultCache {
+  id          String            @id @default(cuid())
+  queryHash   String            @unique
+  queryParams Json              // { brand, model, yearMin, yearMax, ... }
+  results    Json?             // Array of parsed vehicle listings (JSONB)
+  status      SearchResultStatus @default(FAILED)
+  failureReason String?         @map("failure_reason")
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  @@index([queryHash])
+  @@index([status])
+  @@index([updatedAt])
+  @@map("search_result_cache")
+}
+
+// ============================================
+// PRICE COMPARISON
+// ============================================
+
+model PriceComparison {
+  id                   String   @id @default(cuid())
+  vehicleId            String
+  avgPriceGermany      Float?
+  avgPriceFrance       Float?
+  avgPriceLeboncoin    Float?
+  avgPriceLaCentrale   Float?
+  estimatedImportCost  Float?   // Coût d'import estimé au moment de l'analyse
+  difference           Float?   // avgPriceFrance - estimatedImportCost (gain/perte potentiel)
+  profitabilityScore   Float?   // Score 0-100 ou ratio
+  scrapedAt            DateTime @default(now())
+
+  vehicle InventoryVehicle @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+
+  @@index([vehicleId])
+  @@map("price_comparisons")
+}

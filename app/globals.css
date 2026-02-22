@@ -1,0 +1,291 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================================
+   MONOCHROME LUXURY DESIGN SYSTEM
+   ============================================================ */
+
+:root {
+  /* Backgrounds */
+  --bg-base: #0B0D10;
+  --bg-elevated: #111318;
+  --bg-darker: #08090c;
+  --bg-card: #111318;
+  --bg-glass: rgba(255, 255, 255, 0.03);
+  
+  /* Text */
+  --text-primary: #F5F5F5;
+  --text-secondary: #B8B8B8;
+  --text-muted: #8A8F98;
+  
+  /* Borders & surfaces */
+  --border-subtle: rgba(255, 255, 255, 0.06);
+  --hover-surface: rgba(255, 255, 255, 0.05);
+  
+  /* Optional ultra-subtle accent (rare use only) */
+  --accent: #C6A95E;
+  --accent-soft: rgba(198, 169, 94, 0.08);
+  --border-glow: rgba(255, 255, 255, 0.08);
+  --glow: rgba(255, 255, 255, 0.06);
+  --glow-strong: rgba(255, 255, 255, 0.1);
+  
+  --overlay-dark: linear-gradient(180deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.4) 50%, rgba(11,13,16,0.95) 100%);
+  
+  /* Typography */
+  --font-sans: var(--font-geometric), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-display: var(--font-display), var(--font-geometric), sans-serif;
+  
+  /* Motion - cinematic easing */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-in-out-smooth: cubic-bezier(0.65, 0, 0.35, 1);
+  --duration-fast: 0.2s;
+  --duration-normal: 0.4s;
+  --duration-slow: 0.7s;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-sans);
+  color: var(--text-primary);
+  background: var(--bg-base);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ============================================================
+   CINEMATIC TYPOGRAPHY
+   ============================================================ */
+
+@layer base {
+  h1 {
+    @apply text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold tracking-tight;
+    font-family: var(--font-display);
+    letter-spacing: -0.03em;
+  }
+
+  h2 {
+    @apply text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight;
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+  }
+
+  h3 {
+    @apply text-2xl md:text-3xl font-semibold tracking-tight;
+  }
+
+  h4 {
+    @apply text-xl md:text-2xl font-semibold;
+  }
+
+  h5 {
+    @apply text-lg md:text-xl font-medium;
+  }
+
+  h6 {
+    @apply text-base md:text-lg font-medium;
+  }
+
+  p {
+    @apply text-base leading-relaxed;
+    color: var(--text-secondary);
+  }
+
+  .text-hero {
+    @apply font-bold tracking-tight;
+    font-family: var(--font-display);
+    letter-spacing: 0.02em;
+    font-size: clamp(3rem, 10vw, 7rem);
+    line-height: 1.05;
+  }
+
+  .text-hero-wide {
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .text-section-title {
+    @apply text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight;
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+  }
+
+  .text-body-large {
+    @apply text-lg md:text-xl leading-relaxed text-zinc-400;
+  }
+
+  .text-caption {
+    @apply text-sm text-zinc-500;
+  }
+}
+
+/* ============================================================
+   SCROLLBAR - DARK PREMIUM
+   ============================================================ */
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-elevated);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--text-muted);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
+}
+
+/* ============================================================
+   GLASSMORPHISM & DEPTH
+   ============================================================ */
+
+.glass {
+  background: var(--bg-glass);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border-subtle);
+}
+
+.glass-light {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* ============================================================
+   LAYOUT UTILITIES
+   ============================================================ */
+
+.container-custom {
+  @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+}
+
+.section-spacing {
+  @apply py-20 md:py-28 lg:py-36;
+}
+
+/* Cinematic spacing - more dramatic */
+.section-spacing-hero {
+  @apply min-h-screen flex items-center justify-center py-24;
+}
+
+/* Full-width sections - no boxed layout */
+.section-full {
+  @apply w-full;
+}
+
+.section-vertical-rhythm {
+  @apply py-24 md:py-32 lg:py-40 xl:py-48;
+}
+
+/* ============================================================
+   GLOW & DEPTH EFFECTS
+   ============================================================ */
+
+.glow-accent {
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.2), 0 0 80px rgba(0, 0, 0, 0.1);
+}
+
+.glow-border-hover:hover {
+  box-shadow: 0 0 0 1px var(--border-subtle), 0 0 30px rgba(0, 0, 0, 0.15);
+}
+
+/* Subtle background texture overlay */
+.bg-noise::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Login page – subtle background shimmer */
+@keyframes loginShimmer {
+  0%,
+  100% {
+    opacity: 0.2;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+
+.login-shimmer {
+  animation: loginShimmer 12s ease-in-out infinite;
+}
+
+/* ============================================================
+   DASHBOARD & ADMIN – texte clair sur fond sombre
+   ============================================================ */
+
+[data-theme="dark"] {
+  color: var(--text-primary);
+  --text-secondary: #ffffff;
+}
+
+/* Paragraphes et texte des boutons en blanc sur dashboard/admin */
+[data-theme="dark"] p {
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] button:not(.bg-red-600):not(.bg-red-500) {
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .text-gray-500,
+[data-theme="dark"] .text-gray-600,
+[data-theme="dark"] .text-gray-700,
+[data-theme="dark"] .text-gray-800,
+[data-theme="dark"] .text-gray-900 {
+  color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .text-zinc-500,
+[data-theme="dark"] .text-zinc-600,
+[data-theme="dark"] .text-zinc-700 {
+  color: var(--text-secondary) !important;
+}
+
+[data-theme="dark"] thead.bg-gray-50 {
+  background: var(--bg-elevated) !important;
+}
+
+[data-theme="dark"] .divide-gray-200 > * + * {
+  border-color: var(--border-subtle) !important;
+}
+
+[data-theme="dark"] th {
+  color: var(--text-secondary) !important;
+}
+
+[data-theme="dark"] td {
+  color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] label.text-gray-700 {
+  color: var(--text-secondary) !important;
+}
+
+[data-theme="dark"] .placeholder\:text-gray-400::placeholder,
+[data-theme="dark"] input::placeholder,
+[data-theme="dark"] textarea::placeholder {
+  color: var(--text-muted) !important;
+}

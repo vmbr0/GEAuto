@@ -15,6 +15,18 @@ Plateforme SaaS pour l'import automobile : demandes véhicules/pièces, inventai
 
 ## Installation rapide (Docker – recommandé)
 
+**Pour ge-import.com (tout prêt, pas de config manuelle .env) :**
+
+```bash
+git clone <repo> && cd ge-auto-import
+bash scripts/setup-production-env.sh   # crée .env avec NEXTAUTH_URL=https://ge-import.com + secrets générés
+docker compose up -d
+```
+
+Ensuite sur le VPS : Nginx + HTTPS avec `deploy/nginx-ge-import.conf` et Certbot (voir [Déploiement ge-import.com](#déploiement-ge-importcom) ci-dessous).
+
+**Autre domaine / dev :**
+
 ```bash
 git clone <repo> && cd ge-auto-import
 cp .env.example .env
@@ -83,9 +95,30 @@ Voir `.env.example` pour un modèle complet.
 
 ---
 
-## Nginx + HTTPS
+## Déploiement ge-import.com
 
-- Exemple de config Nginx : `deploy/nginx.conf.example` (proxy vers `http://127.0.0.1:3000`).
+Sur le VPS, une fois le repo cloné :
+
+```bash
+sudo bash scripts/deploy-vps.sh
+```
+
+Puis Nginx + HTTPS :
+
+```bash
+sudo cp deploy/nginx-ge-import.conf /etc/nginx/sites-available/ge-import
+sudo ln -sf /etc/nginx/sites-available/ge-import /etc/nginx/sites-enabled/
+sudo nginx -t && sudo systemctl reload nginx
+sudo certbot --nginx -d ge-import.com -d www.ge-import.com
+```
+
+Optionnel : ajouter `RESEND_API_KEY` dans `.env` pour les e-mails, puis `docker compose up -d --force-recreate`.
+
+---
+
+## Nginx + HTTPS (autre domaine)
+
+- Exemple : `deploy/nginx.conf.example`. Pour **ge-import.com** : `deploy/nginx-ge-import.conf`.
 - HTTPS avec Certbot :
 
 ```bash

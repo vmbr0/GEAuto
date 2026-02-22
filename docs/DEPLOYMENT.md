@@ -43,9 +43,30 @@ The codebase uses Resend. For SMTP you would add a small adapter in `lib/email/s
 
 ## 3. Nginx + HTTPS (VPS)
 
-### Nginx
+### Déploiement rapide ge-import.com
+
+Sur le VPS (après clone du repo) :
+
+```bash
+cd /opt/ge-auto-import   # ou votre chemin
+sudo bash scripts/deploy-vps.sh
+```
+
+Ce script crée un `.env` avec `NEXTAUTH_URL=https://ge-import.com`, génère `NEXTAUTH_SECRET` et `POSTGRES_PASSWORD`, puis lance `docker compose up -d`. Ensuite :
+
+```bash
+sudo cp deploy/nginx-ge-import.conf /etc/nginx/sites-available/ge-import
+sudo ln -sf /etc/nginx/sites-available/ge-import /etc/nginx/sites-enabled/
+sudo nginx -t && sudo systemctl reload nginx
+sudo certbot --nginx -d ge-import.com -d www.ge-import.com
+```
+
+(Optionnel) Pour les e-mails : éditer `.env`, ajouter `RESEND_API_KEY`, puis `docker compose up -d --force-recreate`.
+
+### Nginx (autre domaine)
 
 - Use `deploy/nginx.conf.example` as a template.
+- For **ge-import.com** use ready-made `deploy/nginx-ge-import.conf`.
 - Set `server_name` to your domain and proxy to `http://127.0.0.1:3000` (or your Node/PM2 port).
 - Reload: `nginx -t && systemctl reload nginx`.
 
@@ -54,6 +75,7 @@ The codebase uses Resend. For SMTP you would add a small adapter in `lib/email/s
 ```bash
 sudo apt install certbot python3-certbot-nginx
 sudo certbot --nginx -d yourdomain.com -d www.yourdomain.com
+# ge-import.com: -d ge-import.com -d www.ge-import.com
 ```
 
 - Certbot adds the HTTPS server block and redirects HTTP → HTTPS.
@@ -65,7 +87,7 @@ sudo certbot --nginx -d yourdomain.com -d www.yourdomain.com
 
 - **Build and run:**  
   Copy `.env.example` to `.env`, set `NEXTAUTH_URL`, `NEXTAUTH_SECRET`, and optionally `POSTGRES_PASSWORD`.  
-  Then: `docker compose up -d`
+  Or for **ge-import.com**: run `bash scripts/setup-production-env.sh` to generate `.env` with correct URL and secrets, then: `docker compose up -d`
 - The app runs migrations on startup (`prisma migrate deploy`). If no migrations exist yet, run once locally: `npx prisma migrate dev --name init`, commit `prisma/migrations`, then deploy.
 - Database is stored in the `postgres_data` volume (persistent).
 

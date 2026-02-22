@@ -2,6 +2,9 @@
   "name": "ge-auto-import",
   "version": "1.0.0",
   "private": true,
+  "prisma": {
+    "seed": "node prisma/seed.js"
+  },
   "scripts": {
     "dev": "prisma generate && prisma db push && next dev",
     "dev:skip-db": "next dev",
@@ -14,7 +17,7 @@
     "db:migrate": "prisma migrate dev",
     "migrate:deploy": "prisma migrate deploy",
     "db:studio": "prisma studio",
-    "seed": "tsx prisma/seed.ts",
+    "seed": "prisma db seed",
     "worker:mobile-de": "tsx workers/mobile-de-worker.ts",
     "worker:search": "tsx workers/search-worker.ts"
   },

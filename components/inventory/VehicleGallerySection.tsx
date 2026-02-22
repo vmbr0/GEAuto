@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, X, Images } from "lucide-react";
 
@@ -119,13 +118,10 @@ export default function VehicleGallerySection({ images, title }: VehicleGalleryS
                   whileHover={{ scale: 1.04 }}
                   transition={{ duration: 0.4, ease: "easeOut" }}
                 >
-                  <Image
+                  <img
                     src={current}
                     alt={`${title} - ${index + 1}/${total}`}
-                    fill
-                    className="object-contain lg:object-cover"
-                    unoptimized
-                    sizes="(max-width: 1024px) 100vw, 70vw"
+                    className="absolute inset-0 w-full h-full object-contain lg:object-cover"
                   />
                 </motion.div>
               </motion.div>
@@ -206,7 +202,7 @@ export default function VehicleGallerySection({ images, title }: VehicleGalleryS
                       : "border-white/20 hover:border-white/40 opacity-80 hover:opacity-100"
                   }`}
                 >
-                  <Image src={img} alt="" fill className="object-cover" unoptimized sizes="96px" />
+                  <img src={img} alt="" className="absolute inset-0 w-full h-full object-cover" />
                 </button>
               ))}
             </div>
@@ -248,13 +244,10 @@ export default function VehicleGallerySection({ images, title }: VehicleGalleryS
                   transition={{ duration: 0.25, ease: "easeInOut" }}
                   className="absolute inset-0 flex items-center justify-center p-4"
                 >
-                  <Image
+                  <img
                     src={lightboxImage}
                     alt={`${title} - ${lightboxIndex + 1}/${total}`}
-                    fill
-                    className="object-contain"
-                    unoptimized
-                    sizes="100vw"
+                    className="absolute inset-0 w-full h-full object-contain"
                     onClick={(e) => e.stopPropagation()}
                   />
                 </motion.div>
@@ -301,7 +294,7 @@ export default function VehicleGallerySection({ images, title }: VehicleGalleryS
                       i === lightboxIndex ? "border-white" : "border-white/30 hover:border-white/50"
                     }`}
                   >
-                    <Image src={img} alt="" fill className="object-cover" unoptimized sizes="56px" />
+                    <img src={img} alt="" className="absolute inset-0 w-full h-full object-cover" />
                   </button>
                 ))}
               </div>

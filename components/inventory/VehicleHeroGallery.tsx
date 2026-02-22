@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import Image from "next/image";
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 
@@ -103,14 +102,11 @@ export default function VehicleHeroGallery({
                 onTouchMove={onTouchMove}
                 onTouchEnd={onTouchEnd}
               >
-                <Image
+                <img
                   src={currentImage}
                   alt={`${title} - Image ${currentIndex + 1}`}
-                  fill
-                  className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
-                  priority={currentIndex === 0}
-                  unoptimized
-                  sizes="100vw"
+                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+                  loading={currentIndex === 0 ? "eager" : "lazy"}
                   draggable={false}
                 />
               </motion.div>
@@ -180,13 +176,10 @@ export default function VehicleHeroGallery({
                       : "border-white/30 hover:border-white/50 opacity-80 hover:opacity-100"
                   }`}
                 >
-                  <Image
+                  <img
                     src={img}
                     alt=""
-                    fill
-                    className="object-cover"
-                    unoptimized
-                    sizes="80px"
+                    className="absolute inset-0 w-full h-full object-cover"
                   />
                 </button>
               ))}
@@ -224,13 +217,10 @@ export default function VehicleHeroGallery({
                   transition={{ duration: 0.25 }}
                   className="relative w-full h-full"
                 >
-                  <Image
+                  <img
                     src={currentImage}
                     alt={`${title} - Image ${currentIndex + 1}`}
-                    fill
-                    className="object-contain"
-                    unoptimized
-                    sizes="100vw"
+                    className="absolute inset-0 w-full h-full object-contain"
                     onClick={(e) => e.stopPropagation()}
                   />
                 </motion.div>
@@ -273,7 +263,7 @@ export default function VehicleHeroGallery({
                       index === currentIndex ? "border-white" : "border-white/30 hover:border-white/50"
                     }`}
                   >
-                    <Image src={img} alt="" fill className="object-cover" unoptimized sizes="56px" />
+                    <img src={img} alt="" className="absolute inset-0 w-full h-full object-cover" />
                   </button>
                 ))}
               </div>

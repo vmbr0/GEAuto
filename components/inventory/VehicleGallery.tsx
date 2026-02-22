@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import Image from "next/image";
 import { ChevronLeft, ChevronRight, ZoomIn } from "lucide-react";
 
 interface VehicleGalleryProps {
@@ -47,13 +46,11 @@ export default function VehicleGallery({ images, title }: VehicleGalleryProps) {
             transition={{ duration: 0.4 }}
             className="relative w-full h-full"
           >
-            <Image
+            <img
               src={currentImage}
               alt={`${title} - Image ${selectedIndex + 1}`}
-              fill
-              className="object-cover"
-              priority={selectedIndex === 0}
-              unoptimized
+              className="absolute inset-0 w-full h-full object-cover"
+              loading={selectedIndex === 0 ? "eager" : "lazy"}
             />
           </motion.div>
         </AnimatePresence>
@@ -104,12 +101,10 @@ export default function VehicleGallery({ images, title }: VehicleGalleryProps) {
                   : "border-gray-200 hover:border-gray-400"
               }`}
             >
-              <Image
+              <img
                 src={img}
                 alt={`${title} thumbnail ${index + 1}`}
-                fill
-                className="object-cover"
-                unoptimized
+                className="absolute inset-0 w-full h-full object-cover"
               />
               {index === selectedIndex && (
                 <div className="absolute inset-0 bg-black/10" />

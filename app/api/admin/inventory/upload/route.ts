@@ -43,8 +43,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Créer le répertoire s'il n'existe pas
-    const uploadDir = join(process.cwd(), "public", "uploads", "vehicles");
+    // Stockage hors public pour éviter 404 en Docker (volume /app/uploads)
+    const uploadDir = join(process.cwd(), "uploads", "vehicles");
     if (!existsSync(uploadDir)) {
       await mkdir(uploadDir, { recursive: true });
     }

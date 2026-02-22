@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { CreateInquiryInput, UpdateInquiryInput } from "@/lib/validations/inquiry";
 import { InquiryStatus } from "@prisma/client";
+import { getNextInquiryDossierNumber } from "@/lib/dossier";
 
 export const inquiryService = {
   async create(params: {
@@ -8,8 +9,10 @@ export const inquiryService = {
     userId: string | null;
     data: CreateInquiryInput;
   }) {
+    const dossierNumber = await getNextInquiryDossierNumber();
     return prisma.vehicleInquiry.create({
       data: {
+        dossierNumber,
         vehicleId: params.vehicleId,
         userId: params.userId,
         firstName: params.data.firstName,

@@ -190,6 +190,7 @@ export default function HomePage() {
           </h2>
         </RevealOnScroll>
         <RevealOnScroll delay={0.15}>
+          <p className="text-zinc-300 text-lg mb-8 max-w-xl mx-auto">Créez un compte pour suivre vos demandes et prendre rendez-vous.</p>
           <Link href="/auth/register">
             <Button size="lg" variant="primary">
               Créer un compte

@@ -60,7 +60,14 @@ export default function Footer() {
         </div>
 
         <div className="mt-16 pt-8 border-t border-white/[0.06] text-center text-zinc-400 text-sm">
-          <p>&copy; {new Date().getFullYear()} GE Auto Import. Tous droits réservés.</p>
+          <p className="mb-2">&copy; {new Date().getFullYear()} GE Auto Import. Tous droits réservés.</p>
+          <p className="flex flex-wrap justify-center gap-x-4 gap-y-1">
+            <Link href="/mentions-legales" className="hover:text-white transition-colors">Mentions légales</Link>
+            <span aria-hidden>·</span>
+            <Link href="/cgv" className="hover:text-white transition-colors">CGV</Link>
+            <span aria-hidden>·</span>
+            <Link href="/politique-confidentialite" className="hover:text-white transition-colors">Politique de confidentialité</Link>
+          </p>
         </div>
       </div>
     </footer>

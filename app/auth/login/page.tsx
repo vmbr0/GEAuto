@@ -5,6 +5,7 @@ import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import Image from "next/image";
 import { Mail, Lock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { loginSchema } from "@/lib/validations/auth";
@@ -47,9 +48,11 @@ export default function LoginPage() {
       }
 
       if (result?.ok) {
-        router.push("/dashboard");
         router.refresh();
-      } else if (!result) {
+        router.replace("/dashboard");
+        return;
+      }
+      if (!result) {
         setError(
           "Erreur de connexion. Vérifiez que NEXTAUTH_URL et NEXTAUTH_SECRET sont définis."
         );
@@ -118,6 +121,12 @@ export default function LoginPage() {
         transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
         className="relative w-full max-w-[420px]"
       >
+        <Link
+          href="/"
+          className="absolute -top-2 left-0 flex items-center gap-2 text-sm text-zinc-400 hover:text-white transition-colors z-10"
+        >
+          ← Retour à l&apos;accueil
+        </Link>
         {/* Centered glass card */}
         <div
           className={cn(
@@ -134,14 +143,15 @@ export default function LoginPage() {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="text-center mb-8"
           >
-            <div className="inline-flex items-center justify-center gap-2 rounded-xl bg-[var(--hover-surface)] border border-[var(--border-subtle)] px-4 py-2.5">
-              <span className="text-[var(--text-primary)] font-bold text-lg tracking-tight">
-                GE
-              </span>
-              <span className="text-[var(--text-primary)] font-semibold text-lg tracking-tight">
-                Auto Import
-              </span>
-            </div>
+            <Link href="/" className="inline-block">
+              <Image
+                src="/logo.png"
+                alt="GE Auto Import"
+                width={180}
+                height={63}
+                className="h-12 w-auto object-contain mx-auto"
+              />
+            </Link>
           </motion.div>
 
           {/* Title */}
@@ -149,7 +159,7 @@ export default function LoginPage() {
             <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[var(--text-primary)] mb-2">
               Connexion à votre espace
             </h1>
-            <p className="text-sm sm:text-base" style={{ color: '#ffffff' }}>
+            <p className="text-sm sm:text-base text-white/80">
               Accédez à votre plateforme GE Auto Import
             </p>
           </div>

@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { vehicleRequestSchema } from "@/lib/validations/requests";
 import { RequestStatus } from "@prisma/client";
 import { emailService } from "@/services/email-service";
+import { getNextVehicleDossierNumber } from "@/lib/dossier";
 
 export async function POST(req: NextRequest) {
   try {
@@ -22,9 +23,10 @@ export async function POST(req: NextRequest) {
     // Validate input
     const validatedData = vehicleRequestSchema.parse(body);
 
-    // Create vehicle request
+    const dossierNumber = await getNextVehicleDossierNumber();
     const vehicleRequest = await prisma.vehicleRequest.create({
       data: {
+        dossierNumber,
         userId: session.user.id,
         brand: validatedData.brand,
         model: validatedData.model,

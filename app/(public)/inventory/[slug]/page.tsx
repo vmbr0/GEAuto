@@ -69,14 +69,27 @@ export default function VehicleDetailPage() {
     message: "",
   });
   const [appointmentForm, setAppointmentForm] = useState({
-    firstName: "",
-    lastName: "",
+    firstName: (session?.user as any)?.firstName ?? "",
+    lastName: (session?.user as any)?.lastName ?? "",
     email: session?.user?.email ?? "",
-    phone: "",
+    phone: (session?.user as any)?.phone ?? "",
     date: "",
     message: "",
   });
   const [selectedSlot, setSelectedSlot] = useState<{ startTime: string; endTime: string } | null>(null);
+
+  useEffect(() => {
+    if (session?.user) {
+      const u = session.user as any;
+      setAppointmentForm((prev) => ({
+        ...prev,
+        firstName: prev.firstName || u.firstName || "",
+        lastName: prev.lastName || u.lastName || "",
+        email: prev.email || u.email || "",
+        phone: prev.phone || u.phone || "",
+      }));
+    }
+  }, [session?.user]);
 
   useEffect(() => {
     const fetchVehicle = async () => {
@@ -318,7 +331,7 @@ export default function VehicleDetailPage() {
                       <Calendar className="w-5 h-5 mr-2" />
                       Prendre rendez-vous
                     </Button>
-                    <Button variant="outline" fullWidth size="lg" onClick={() => { setShowInquiryModal(true); setFormError(null); setInquirySuccess(false); }}>
+                    <Button variant="primary" fullWidth size="lg" onClick={() => { setShowInquiryModal(true); setFormError(null); setInquirySuccess(false); }}>
                       <MessageCircle className="w-5 h-5 mr-2" />
                       Demander des informations
                     </Button>
@@ -399,7 +412,7 @@ export default function VehicleDetailPage() {
                       <Calendar className="w-5 h-5 mr-2" />
                       Prendre rendez-vous
                     </Button>
-                    <Button variant="outline" fullWidth size="lg" className="text-lg py-4 border-white/20 text-[#F5F5F5] hover:bg-white/10" onClick={() => { setShowInquiryModal(true); setFormError(null); setInquirySuccess(false); }}>
+                    <Button variant="primary" fullWidth size="lg" className="text-lg py-4" onClick={() => { setShowInquiryModal(true); setFormError(null); setInquirySuccess(false); }}>
                       <MessageCircle className="w-5 h-5 mr-2" />
                       Demander des informations
                     </Button>

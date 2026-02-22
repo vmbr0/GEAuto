@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import Image from "next/image";
 import { cn } from "@/lib/utils";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
@@ -13,7 +14,8 @@ import { registerSchema } from "@/lib/validations/auth";
 export default function RegisterPage() {
   const router = useRouter();
   const [formData, setFormData] = useState({
-    name: "",
+    firstName: "",
+    lastName: "",
     email: "",
     password: "",
     confirmPassword: "",
@@ -44,15 +46,27 @@ export default function RegisterPage() {
     setIsLoading(true);
 
     try {
-      // Validate with Zod
-      registerSchema.parse(formData);
+      const payload = {
+        firstName: formData.firstName.trim(),
+        lastName: formData.lastName.trim(),
+        email: formData.email,
+        password: formData.password,
+        confirmPassword: formData.confirmPassword,
+      };
+      registerSchema.parse(payload);
 
       const response = await fetch("/api/auth/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          firstName: formData.firstName.trim(),
+          lastName: formData.lastName.trim(),
+          email: formData.email,
+          password: formData.password,
+          confirmPassword: formData.confirmPassword,
+        }),
       });
 
       const data = await response.json();
@@ -111,8 +125,8 @@ export default function RegisterPage() {
             "shadow-[0_0_0_1px_rgba(255,255,255,0.03),0_24px_48px_-12px_rgba(0,0,0,0.5)]"
           )}
         >
-          <Alert variant="success" className="mb-4 text-green-200">
-            Compte créé avec succès ! Redirection...
+          <Alert variant="success" className="mb-4 bg-emerald-500/20 border-emerald-400/40 text-white">
+            Compte créé avec succès ! Redirection vers la connexion...
           </Alert>
         </motion.div>
       </div>
@@ -144,6 +158,12 @@ export default function RegisterPage() {
         transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
         className="relative w-full max-w-[420px]"
       >
+        <Link
+          href="/"
+          className="absolute -top-2 left-0 flex items-center gap-2 text-sm text-zinc-400 hover:text-white transition-colors z-10"
+        >
+          ← Retour à l&apos;accueil
+        </Link>
         <div
           className={cn(
             "rounded-2xl p-8 sm:p-10",
@@ -153,14 +173,19 @@ export default function RegisterPage() {
           )}
         >
           <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center gap-2 rounded-xl bg-[var(--hover-surface)] border border-[var(--border-subtle)] px-4 py-2.5 mb-6">
-              <span className="text-white font-bold text-lg tracking-tight">GE</span>
-              <span className="text-white font-semibold text-lg tracking-tight">Auto Import</span>
-            </div>
+            <Link href="/" className="inline-block mb-6">
+              <Image
+                src="/logo.png"
+                alt="GE Auto Import"
+                width={180}
+                height={63}
+                className="h-12 w-auto object-contain mx-auto"
+              />
+            </Link>
             <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white mb-2">
               Créez votre compte
             </h1>
-            <p className="text-sm text-white/90">Inscrivez-vous pour accéder à votre espace</p>
+            <p className="text-sm text-white/80">Inscrivez-vous pour accéder à votre espace</p>
           </div>
 
           {error && (
@@ -171,15 +196,27 @@ export default function RegisterPage() {
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <Input
-              label="Nom complet"
+              label="Prénom"
               type="text"
-              name="name"
-              placeholder="Jean Dupont"
-              value={formData.name}
+              name="firstName"
+              placeholder="Jean"
+              value={formData.firstName}
               onChange={handleChange}
-              error={fieldErrors.name}
+              error={fieldErrors.firstName}
               disabled={isLoading}
-              autoComplete="name"
+              autoComplete="given-name"
+              dark
+            />
+            <Input
+              label="Nom"
+              type="text"
+              name="lastName"
+              placeholder="Dupont"
+              value={formData.lastName}
+              onChange={handleChange}
+              error={fieldErrors.lastName}
+              disabled={isLoading}
+              autoComplete="family-name"
               dark
             />
             <Input

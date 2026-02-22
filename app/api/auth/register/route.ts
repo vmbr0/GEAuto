@@ -29,7 +29,6 @@ export async function POST(req: NextRequest) {
     const name =
       validatedData.name ??
       ([validatedData.firstName, validatedData.lastName].filter(Boolean).join(" ") || validatedData.email);
-
     const user = await prisma.user.create({
       data: {
         name,

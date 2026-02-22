@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { partsRequestSchema } from "@/lib/validations/requests";
 import { RequestStatus } from "@prisma/client";
 import { emailService } from "@/services/email-service";
+import { getNextPartsDossierNumber } from "@/lib/dossier";
 
 export async function POST(req: NextRequest) {
   try {
@@ -22,9 +23,10 @@ export async function POST(req: NextRequest) {
     // Validate input
     const validatedData = partsRequestSchema.parse(body);
 
-    // Create parts request
+    const dossierNumber = await getNextPartsDossierNumber();
     const partsRequest = await prisma.partsRequest.create({
       data: {
+        dossierNumber,
         userId: session.user.id,
         partName: validatedData.partName,
         vehicleModel: validatedData.vehicleModel ?? undefined,

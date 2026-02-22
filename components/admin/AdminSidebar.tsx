@@ -48,7 +48,7 @@ export default function AdminSidebar() {
   return (
     <aside
       className={cn(
-        "w-64 shrink-0 flex flex-col border-r border-[rgba(255,255,255,0.06)]",
+        "w-64 shrink-0 flex flex-col min-h-screen border-r border-[rgba(255,255,255,0.06)]",
         "bg-[#080a0e]"
       )}
     >

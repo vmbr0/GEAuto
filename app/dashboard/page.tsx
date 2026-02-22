@@ -53,7 +53,7 @@ export default async function DashboardPage() {
           Tableau de bord
         </h1>
         <p className="text-[var(--text-secondary)]">
-          Bienvenue, {user.name || user.email}
+          Bienvenue, {user.firstName || user.name || user.email}
         </p>
       </div>
 
@@ -158,7 +158,7 @@ export default async function DashboardPage() {
               </span>
             </Link>
           </div>
-          <div className="space-y-4">
+          <div className="space-y-6">
             {recentRequests.map((request) => {
               const unreadCount = request.vehicleMessages.length;
               return (

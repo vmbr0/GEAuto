@@ -63,12 +63,13 @@ model User {
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 
-  vehicleRequests    VehicleRequest[]
-  partsRequests      PartsRequest[]
-  vehicleMessages    VehicleMessage[]
-  partsMessages      PartsMessage[]
-  searchSessions     SearchSession[]
-  vehicleInquiries   VehicleInquiry[]
+  vehicleRequests     VehicleRequest[]
+  partsRequests       PartsRequest[]
+  vehicleMessages     VehicleMessage[]
+  partsMessages       PartsMessage[]
+  searchSessions      SearchSession[]
+  vehicleInquiries    VehicleInquiry[]
+  inquiryMessages     InquiryMessage[]
   vehicleAppointments VehicleAppointment[]
   passwordResetTokens PasswordResetToken[]
 
@@ -91,52 +92,54 @@ model PasswordResetToken {
 }
 
 model VehicleRequest {
-  id          String        @id @default(cuid())
-  userId      String
-  brand       String
-  model       String
-  yearMin     Int?
-  yearMax     Int?
-  mileageMin  Int?
-  mileageMax  Int?
-  fuelType    FuelType?
-  transmission Transmission?
-  color       String?
-  budget      Float?
-  notes       String?      @db.Text
-  status      RequestStatus @default(PENDING)
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-
-  user          User            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  scrapedVehicles ScrapedVehicle[]
-  vehicleMessages VehicleMessage[]
-
-  @@index([userId])
-
-  @@map("vehicle_requests")
-}
-
-model PartsRequest {
   id           String        @id @default(cuid())
+  dossierNumber String?      @unique // e.g. GE-2026-000123
   userId       String
-  partName     String
-  vehicleModel String?
-  year         Int?
-  vin          String?
+  brand        String
+  model        String
+  yearMin      Int?
+  yearMax      Int?
+  mileageMin   Int?
+  mileageMax   Int?
+  fuelType     FuelType?
+  transmission Transmission?
+  color        String?
   budget       Float?
-  imageUrl     String?
   notes        String?       @db.Text
   status       RequestStatus @default(PENDING)
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
 
-  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  scrapedParts ScrapedPart[]
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  scrapedVehicles  ScrapedVehicle[]
+  vehicleMessages  VehicleMessage[]
+
+  @@index([userId])
+  @@index([dossierNumber])
+  @@map("vehicle_requests")
+}
+
+model PartsRequest {
+  id            String         @id @default(cuid())
+  dossierNumber String?        @unique // e.g. GE-2026-000456
+  userId        String
+  partName      String
+  vehicleModel  String?
+  year          Int?
+  vin           String?
+  budget        Float?
+  imageUrl      String?
+  notes         String?        @db.Text
+  status        RequestStatus  @default(PENDING)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  scrapedParts   ScrapedPart[]
   partsMessages PartsMessage[]
 
   @@index([userId])
-
+  @@index([dossierNumber])
   @@map("parts_requests")
 }
 
@@ -199,29 +202,31 @@ model ScrapedPart {
 }
 
 model VehicleMessage {
-  id        String   @id @default(cuid())
-  requestId String
-  senderId  String
-  content   String   @db.Text
-  isRead    Boolean  @default(false)
-  createdAt DateTime @default(now())
+  id           String   @id @default(cuid())
+  requestId    String
+  senderId     String
+  content      String   @db.Text
+  attachmentUrl String?  // image in uploads/messages
+  isRead       Boolean  @default(false)
+  createdAt    DateTime @default(now())
 
   request VehicleRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
-  sender User @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  sender  User           @relation(fields: [senderId], references: [id], onDelete: Cascade)
 
   @@map("vehicle_messages")
 }
 
 model PartsMessage {
-  id        String   @id @default(cuid())
-  requestId String
-  senderId  String
-  content   String   @db.Text
-  isRead    Boolean  @default(false)
-  createdAt DateTime @default(now())
+  id           String   @id @default(cuid())
+  requestId    String
+  senderId     String
+  content      String   @db.Text
+  attachmentUrl String?
+  isRead       Boolean  @default(false)
+  createdAt    DateTime @default(now())
 
   request PartsRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
-  sender User @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  sender  User         @relation(fields: [senderId], references: [id], onDelete: Cascade)
 
   @@map("parts_messages")
 }
@@ -285,27 +290,46 @@ model InventoryVehicle {
 // ============================================
 
 model VehicleInquiry {
-  id           String        @id @default(cuid())
-  vehicleId    String
-  userId       String?
-  firstName    String
-  lastName     String
-  email        String
-  phone        String
-  message      String        @db.Text
-  status       InquiryStatus @default(NEW)
-  adminResponse String?      @db.Text
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
+  id            String         @id @default(cuid())
+  dossierNumber String?        @unique // e.g. GE-INQ-2026-000001
+  vehicleId     String
+  userId        String?
+  firstName     String
+  lastName      String
+  email         String
+  phone         String
+  message       String         @db.Text
+  status        InquiryStatus   @default(NEW)
+  adminResponse String?         @db.Text
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime       @updatedAt
 
-  vehicle InventoryVehicle @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
-  user   User?             @relation(fields: [userId], references: [id], onDelete: SetNull)
+  vehicle  InventoryVehicle  @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  user     User?             @relation(fields: [userId], references: [id], onDelete: SetNull)
+  messages InquiryMessage[]
 
   @@index([vehicleId])
   @@index([userId])
   @@index([status])
   @@index([createdAt])
+  @@index([dossierNumber])
   @@map("vehicle_inquiries")
+}
+
+model InquiryMessage {
+  id           String   @id @default(cuid())
+  inquiryId    String
+  senderId     String
+  content      String   @db.Text
+  attachmentUrl String?
+  isRead       Boolean  @default(false)
+  createdAt    DateTime @default(now())
+
+  inquiry VehicleInquiry @relation(fields: [inquiryId], references: [id], onDelete: Cascade)
+  sender  User           @relation(fields: [senderId], references: [id], onDelete: Cascade)
+
+  @@index([inquiryId])
+  @@map("inquiry_messages")
 }
 
 // ============================================

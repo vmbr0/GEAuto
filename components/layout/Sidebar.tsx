@@ -42,7 +42,7 @@ export default function Sidebar() {
         transition: "width 0.35s cubic-bezier(0.16, 1, 0.3, 1)",
       }}
       className={cn(
-        "relative flex flex-col h-full shrink-0 overflow-hidden",
+        "relative flex flex-col min-h-screen h-full shrink-0 overflow-hidden",
         "bg-[var(--bg-glass)] backdrop-blur-xl border-r border-[var(--border-subtle)]",
         "shadow-[0_0_60px_-12px_rgba(0,0,0,0.5)]"
       )}

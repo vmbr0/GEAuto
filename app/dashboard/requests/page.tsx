@@ -66,7 +66,7 @@ export default async function RequestsPage() {
           }
         />
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-6">
           {allRequests.map((request) => (
             <Link
               key={request.id}

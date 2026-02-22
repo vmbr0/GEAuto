@@ -3,6 +3,21 @@ import { CreateAppointmentInput, UpdateAppointmentInput } from "@/lib/validation
 import { AppointmentStatus } from "@prisma/client";
 import { isSlotAvailable } from "./availability-service";
 
+function parseDateOnly(dateStr: string): Date | null {
+  const trimmed = dateStr?.trim();
+  if (!trimmed) return null;
+  const match = trimmed.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (match) {
+    const y = parseInt(match[1], 10);
+    const m = parseInt(match[2], 10) - 1;
+    const d = parseInt(match[3], 10);
+    const date = new Date(y, m, d);
+    if (date.getFullYear() === y && date.getMonth() === m && date.getDate() === d) return date;
+  }
+  const parsed = new Date(trimmed);
+  return Number.isNaN(parsed.getTime()) ? null : parsed;
+}
+
 export const appointmentService = {
   async createWithSlot(params: {
     vehicleId: string;
@@ -16,7 +31,10 @@ export const appointmentService = {
     phone: string;
     message?: string | null;
   }) {
-    const date = new Date(params.date);
+    const date = parseDateOnly(params.date);
+    if (!date || Number.isNaN(date.getTime())) {
+      throw new Error("Date invalide.");
+    }
     const available = await isSlotAvailable(date, params.startTime, params.endTime);
     if (!available) {
       throw new Error("Ce créneau n'est plus disponible.");
@@ -46,7 +64,8 @@ export const appointmentService = {
     userId: string | null;
     data: { preferredDate: string; preferredTime?: string; message?: string; firstName: string; lastName: string; email: string; phone: string };
   }) {
-    const preferredDate = new Date(params.data.preferredDate);
+    const preferredDate = parseDateOnly(params.data.preferredDate) ?? new Date(params.data.preferredDate);
+    if (Number.isNaN(preferredDate.getTime())) throw new Error("Date invalide.");
     return prisma.vehicleAppointment.create({
       data: {
         vehicleId: params.vehicleId,

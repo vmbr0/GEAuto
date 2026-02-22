@@ -49,7 +49,7 @@ function queryHash(params: SearchQueryParams): string {
   return "v1-" + Math.abs(h).toString(36);
 }
 
-export interface SearchServiceResult =
+export type SearchServiceResult =
   | { status: "cached"; queryHash: string; results: unknown[]; cachedAt: Date }
   | { status: "in_progress"; queryHash: string }
   | { status: "error"; message: string };

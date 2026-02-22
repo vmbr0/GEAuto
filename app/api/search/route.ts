@@ -4,6 +4,8 @@
  * - Returns cached results, "search in progress", or error. Never crashes.
  */
 import { NextRequest, NextResponse } from "next/server";
+
+export const dynamic = "force-dynamic";
 import { handleSearchRequest } from "@/services/search/search-service";
 import { logSearchError } from "@/lib/logger";
 

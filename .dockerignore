@@ -18,6 +18,9 @@ dist
 .env.*
 !.env.example
 
+# Logs
+logs
+
 # IDE / OS
 .DS_Store
 *.log
@@ -28,9 +31,6 @@ dist
 coverage
 *.test.*
 *.spec.*
-
-# Prisma (on garde le schema)
-prisma/migrations
 
 # Doc / divers
 *.md

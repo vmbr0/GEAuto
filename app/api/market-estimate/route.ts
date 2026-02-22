@@ -3,6 +3,8 @@
  * Returns market price estimation for an inventory vehicle. Cached 24h.
  */
 import { NextRequest, NextResponse } from "next/server";
+
+export const dynamic = "force-dynamic";
 import { prisma } from "@/lib/prisma";
 import { getRedis } from "@/lib/redis";
 import { estimateMarketPrice, CACHE_TTL_SEC } from "@/services/market-estimate/estimateMarketPrice";
